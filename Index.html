@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Школа будущего — цифровой помощник</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    :root{
+      --bg:#f4f8fc;
+      --card:#ffffff;
+      --text:#17324a;
+      --muted:#6c7d8d;
+      --primary:#1d9bd1;
+      --primary-dark:#1177a7;
+      --gold:#f4c542;
+      --gold-soft:#fff4c8;
+      --line:#dde8f0;
+      --soft:#eaf7ff;
+      --success:#2bb673;
+      --shadow:0 16px 40px rgba(27, 57, 87, .10);
+      --radius:22px;
+    }
+
+    body{
+      margin:0;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(29,155,209,.10), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(244,197,66,.12), transparent 32%),
+        var(--bg);
+      color:var(--text);
+    }
+
+    button,input,select{font:inherit;}
+    button{cursor:pointer;}
+
+    .app-shell{
+      min-height:100vh;
+      display:grid;
+      grid-template-columns:280px 1fr;
+    }
+
+    .sidebar{
+      color:#fff;
+      background:
+        linear-gradient(180deg, rgba(244,197,66,.08), transparent 30%),
+        linear-gradient(180deg, #0d3650, #10293e);
+      padding:24px 18px;
+      display:flex;
+      flex-direction:column;
+      gap:26px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .sidebar::before,
+    .sidebar::after{
+      content:"";
+      position:absolute;
+      inset:auto -40px -20px auto;
+      width:180px;
+      height:180px;
+      opacity:.12;
+      background-repeat:no-repeat;
+      background-size:contain;
+      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><g fill='none' stroke='%23f4c542' stroke-width='8' stroke-linecap='round'><path d='M35 100c18 0 22-20 38-20s20 20 38 20 22-20 38-20 20 20 38 20'/><path d='M35 70c18 0 22-20 38-20s20 20 38 20 22-20 38-20 20 20 38 20'/><path d='M35 130c18 0 22-20 38-20s20 20 38 20 22-20 38-20 20 20 38 20'/></g></svg>");
+    }
+
+    .sidebar::after{
+      top:110px; left:-55px; right:auto; bottom:auto;
+      transform:rotate(90deg);
+      width:140px; height:140px;
+      opacity:.08;
+    }
+
+    .brand{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      position:relative;
+      z-index:1;
+    }
+
+    .logo-badge{
+      width:58px;
+      height:58px;
+      border-radius:18px;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(135deg, #1ea9de, #0c5f8f);
+      box-shadow:0 10px 24px rgba(0,0,0,.28);
+      border:1px solid rgba(255,255,255,.18);
+      flex-shrink:0;
+    }
+
+    .brand h1{font-size:17px; margin:0;}
+    .brand p{margin:4px 0 0; font-size:12px; color:#c6d3de;}
+
+    .menu{
+      display:grid;
+      gap:8px;
+      position:relative;
+      z-index:1;
+    }
+
+    .nav-btn{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      border:0;
+      background:transparent;
+      color:#d4deea;
+      padding:12px 14px;
+      border-radius:14px;
+      text-align:left;
+      transition:.2s;
+    }
+
+    .nav-btn:hover, .nav-btn.active{
+      color:white;
+      background:rgba(255,255,255,.10);
+      backdrop-filter: blur(2px);
+    }
+
+    .menu-icon{
+      width:34px;
+      height:34px;
+      border-radius:12px;
+      background:rgba(255,255,255,.08);
+      display:grid;
+      place-items:center;
+      flex-shrink:0;
+      border:1px solid rgba(255,255,255,.10);
+    }
+
+    .sidebar-footer{
+      margin-top:auto;
+      font-size:12px;
+      color:#c4d1dc;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      position:relative;
+      z-index:1;
+    }
+
+    .status-dot{
+      width:8px; height:8px; border-radius:50%; background:var(--success); display:inline-block;
+    }
+
+    .main{
+      padding:26px 34px 50px;
+      max-width:1500px;
+      width:100%;
+      margin:0 auto;
+    }
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      margin-bottom:24px;
+    }
+
+    .eyebrow{
+      margin:0 0 4px;
+      color:var(--primary);
+      font-weight:700;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+    }
+
+    .topbar h2{ margin:0; font-size:28px; }
+
+    .role-switch{
+      background:white;
+      padding:5px;
+      border-radius:14px;
+      box-shadow:var(--shadow);
+    }
+
+    .role-btn{
+      border:0;
+      background:transparent;
+      padding:10px 14px;
+      border-radius:10px;
+      color:var(--muted);
+      font-weight:700;
+    }
+
+    .role-btn.active{
+      background:var(--soft);
+      color:var(--primary-dark);
+    }
+
+    .page{display:none;}
+    .page.active{display:block;}
+
+    .hero{
+      position:relative;
+      border-radius:28px;
+      padding:34px;
+      display:grid;
+      grid-template-columns:1.4fr .8fr;
+      gap:26px;
+      background:
+        linear-gradient(135deg, #ecfbff, #fff8df),
+        #fff;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      border:1px solid rgba(29,155,209,.10);
+    }
+
+    .hero::before{
+      content:"";
+      position:absolute;
+      right:-50px;
+      top:-10px;
+      width:240px;
+      height:240px;
+      opacity:.16;
+      background-repeat:no-repeat;
+      background-size:contain;
+      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 220'><circle cx='110' cy='110' r='64' fill='none' stroke='%231d9bd1' stroke-width='8'/><circle cx='110' cy='110' r='44' fill='none' stroke='%23f4c542' stroke-width='8'/><g stroke='%231d9bd1' stroke-width='8' stroke-linecap='round'><path d='M110 24v28'/><path d='M110 168v28'/><path d='M24 110h28'/><path d='M168 110h28'/><path d='M52 52l18 18'/><path d='M150 150l18 18'/><path d='M150 70l18-18'/><path d='M52 168l18-18'/></g></svg>");
+    }
+
+    .badge{
+      display:inline-flex;
+      padding:7px 11px;
+      border-radius:999px;
+      background:white;
+      color:var(--primary-dark);
+      font-size:12px;
+      font-weight:800;
+      box-shadow:0 6px 16px rgba(17,119,167,.10);
+      border:1px solid rgba(29,155,209,.12);
+    }
+
+    .hero h3, .section-head h3, .chat-info h3{
+      margin:14px 0 10px;
+      font-size:32px;
+      line-height:1.1;
+    }
+
+    .hero p, .chat-info p{
+      color:var(--muted);
+      line-height:1.7;
+      max-width:720px;
+      margin:0;
+    }
+
+    .primary-btn{
+      margin-top:16px;
+      border:0;
+      background:var(--primary);
+      color:white;
+      border-radius:13px;
+      padding:13px 20px;
+      font-weight:800;
+      box-shadow:0 10px 24px rgba(29,155,209,.24);
+    }
+
+    .primary-btn:hover{ background:var(--primary-dark); }
+
+    .hero-card{
+      background:rgba(255,255,255,.88);
+      border:1px solid rgba(29,155,209,.14);
+      border-radius:22px;
+      padding:24px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:10px;
+      position:relative;
+      z-index:1;
+    }
+
+    .hero-symbol{
+      width:88px;
+      height:88px;
+      margin-bottom:2px;
+    }
+
+    .hero-card span{
+      color:var(--muted);
+      line-height:1.5;
+    }
+
+    .cards{
+      margin-top:24px;
+      display:grid;
+      grid-template-columns:repeat(4, 1fr);
+      gap:18px;
+    }
+
+    .info-card, .today-box, .schedule-item, .homework-card, .event-card, .chat-card{
+      background:var(--card);
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+    }
+
+    .info-card{
+      padding:20px;
+      border-radius:20px;
+    }
+
+    .kaz-icon{
+      width:68px;
+      height:68px;
+      margin-bottom:8px;
+    }
+
+    .info-card h4{margin:8px 0 6px;}
+    .info-card p{
+      color:var(--muted);
+      min-height:48px;
+      line-height:1.5;
+      margin:0 0 14px;
+    }
+
+    .info-card button{
+      border:0;
+      background:var(--soft);
+      color:var(--primary-dark);
+      font-weight:800;
+      border-radius:10px;
+      padding:9px 12px;
+    }
+
+    .today-box{
+      margin-top:24px;
+      padding:22px;
+      border-radius:20px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .today-box::after{
+      content:"";
+      position:absolute;
+      right:18px;
+      top:10px;
+      width:96px;
+      height:96px;
+      opacity:.08;
+      background-repeat:no-repeat;
+      background-size:contain;
+      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 140 140'><g fill='none' stroke='%231d9bd1' stroke-width='6' stroke-linecap='round'><path d='M10 70c14 0 17-15 30-15s16 15 30 15 17-15 30-15 16 15 30 15'/><path d='M10 44c14 0 17-15 30-15s16 15 30 15 17-15 30-15 16 15 30 15'/><path d='M10 96c14 0 17-15 30-15s16 15 30 15 17-15 30-15 16 15 30 15'/></g></svg>");
+    }
+
+    .mini-label{
+      color:var(--muted);
+      font-size:12px;
+      text-transform:uppercase;
+      font-weight:700;
+    }
+
+    .today-box h4{margin:4px 0 16px;}
+
+    .lesson-row{
+      display:flex;
+      align-items:center;
+      gap:16px;
+      padding:15px;
+      background:#fafcfe;
+      border-radius:14px;
+      position:relative;
+      z-index:1;
+    }
+
+    .lesson-time{
+      color:var(--primary-dark);
+      font-weight:800;
+      min-width:60px;
+    }
+
+    .lesson-row div{
+      display:grid;
+      gap:4px;
+    }
+
+    .lesson-row small{ color:var(--muted); }
+
+    .pill{
+      margin-left:auto;
+      background:#fff4d4;
+      color:#9d6b00;
+      padding:7px 11px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .section-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:end;
+      gap:16px;
+      margin-bottom:20px;
+    }
+
+    .filter-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .select{
+      border:1px solid var(--line);
+      background:white;
+      padding:11px 13px;
+      border-radius:10px;
+      min-width:190px;
+    }
+
+    .schedule-list, .events-list{ display:grid; gap:14px; }
+
+    .schedule-item{
+      display:grid;
+      grid-template-columns:80px 1fr auto;
+      align-items:center;
+      gap:18px;
+      padding:18px 20px;
+      border-radius:18px;
+    }
+
+    .schedule-time{
+      font-weight:900;
+      color:var(--primary-dark);
+    }
+
+    .schedule-item h4, .event-card h4, .homework-card h4{
+      margin:0 0 4px;
+    }
+
+    .schedule-item p, .homework-card p, .event-card p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.55;
+    }
+
+    .room{
+      background:#eef8ff;
+      color:#38617c;
+      padding:7px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .homework-grid{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:16px;
+    }
+
+    .homework-card{
+      border-radius:20px;
+      padding:20px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .homework-card::after{
+      content:"";
+      position:absolute;
+      right:-8px;
+      bottom:-8px;
+      width:90px;
+      height:90px;
+      opacity:.10;
+      background-repeat:no-repeat;
+      background-size:contain;
+      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'><circle cx='60' cy='60' r='48' fill='none' stroke='%23f4c542' stroke-width='8'/><path d='M60 18v84M18 60h84M31 31l58 58M89 31L31 89' stroke='%231d9bd1' stroke-width='6' stroke-linecap='round'/></svg>");
+    }
+
+    .subject-tag{
+      display:inline-block;
+      margin-bottom:10px;
+      color:#8a6500;
+      background:var(--gold-soft);
+      padding:6px 10px;
+      border-radius:8px;
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .homework-card .deadline{
+      margin-top:14px;
+      font-size:12px;
+      color:var(--primary-dark);
+      font-weight:800;
+      position:relative;
+      z-index:1;
+    }
+
+    .event-card{
+      border-radius:20px;
+      padding:20px;
+      display:grid;
+      grid-template-columns:82px 1fr;
+      gap:18px;
+      align-items:start;
+    }
+
+    .event-date{
+      background:linear-gradient(180deg, #0f8bc3, #0c6f9d);
+      color:#fff7da;
+      border-radius:16px;
+      display:grid;
+      place-items:center;
+      padding:12px 8px;
+      font-weight:900;
+      text-align:center;
+      border:1px solid rgba(255,255,255,.18);
+      box-shadow:0 8px 18px rgba(15,139,195,.22);
+    }
+
+    .chat-layout{
+      display:grid;
+      grid-template-columns:.82fr 1.18fr;
+      gap:24px;
+      align-items:stretch;
+    }
+
+    .chat-info{
+      padding:30px;
+      background:white;
+      border:1px solid var(--line);
+      border-radius:24px;
+      box-shadow:var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .chat-info::after{
+      content:"";
+      position:absolute;
+      right:-20px;
+      bottom:-20px;
+      width:150px;
+      height:150px;
+      opacity:.10;
+      background-repeat:no-repeat;
+      background-size:contain;
+      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160'><path d='M20 80c20 0 24-22 42-22s22 22 42 22 24-22 42-22' fill='none' stroke='%231d9bd1' stroke-width='8' stroke-linecap='round'/><path d='M20 110c20 0 24-22 42-22s22 22 42 22 24-22 42-22' fill='none' stroke='%23f4c542' stroke-width='8' stroke-linecap='round'/><path d='M20 50c20 0 24-22 42-22s22 22 42 22 24-22 42-22' fill='none' stroke='%231d9bd1' stroke-width='8' stroke-linecap='round'/></svg>");
+    }
+
+    .quick-questions{
+      display:grid;
+      gap:10px;
+      margin-top:24px;
+      position:relative;
+      z-index:1;
+    }
+
+    .quick-questions button{
+      text-align:left;
+      border:1px solid var(--line);
+      background:white;
+      border-radius:12px;
+      padding:12px 14px;
+      color:var(--text);
+    }
+
+    .quick-questions button:hover{
+      border-color:var(--primary);
+      color:var(--primary-dark);
+      background:#fcfeff;
+    }
+
+    .chat-card{
+      border-radius:24px;
+      overflow:hidden;
+      display:flex;
+      min-height:590px;
+      flex-direction:column;
+    }
+
+    .chat-head{
+      padding:18px 20px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      gap:12px;
+      align-items:center;
+      background:white;
+    }
+
+    .bot-avatar{
+      width:48px;
+      height:48px;
+      border-radius:50%;
+      background:linear-gradient(135deg, #eaf7ff, #fff8df);
+      display:grid;
+      place-items:center;
+      border:1px solid rgba(29,155,209,.12);
+      flex-shrink:0;
+    }
+
+    .chat-head div:last-child{ display:grid; gap:4px; }
+    .chat-head small{ color:var(--muted); }
+
+    .chat-messages{
+      flex:1;
+      padding:20px;
+      overflow-y:auto;
+      background:#fbfdff;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .message{
+      max-width:78%;
+      padding:12px 14px;
+      border-radius:14px;
+      line-height:1.55;
+    }
+
+    .message.bot{
+      background:white;
+      border:1px solid var(--line);
+      align-self:flex-start;
+    }
+
+    .message.user{
+      background:var(--primary);
+      color:white;
+      align-self:flex-end;
+    }
+
+    .chat-input{
+      border-top:1px solid var(--line);
+      padding:14px;
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:10px;
+      background:white;
+    }
+
+    .chat-input input{
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:13px 14px;
+      outline:none;
+    }
+
+    .chat-input input:focus{ border-color:var(--primary); }
+
+    .chat-input button{
+      border:0;
+      border-radius:12px;
+      background:var(--primary);
+      color:white;
+      padding:0 18px;
+      font-weight:800;
+    }
+
+    svg{ display:block; }
+
+    @media (max-width: 1000px){
+      .app-shell{ grid-template-columns:1fr; }
+      .menu{ grid-template-columns:repeat(5, 1fr); }
+      .nav-btn{ justify-content:center; padding:10px 8px; }
+      .nav-btn span:last-child{ font-size:12px; }
+      .sidebar-footer{ display:none; }
+      .hero, .chat-layout{ grid-template-columns:1fr; }
+      .cards{ grid-template-columns:repeat(2, 1fr); }
+    }
+
+    @media (max-width: 680px){
+      .main{ padding:18px; }
+      .topbar{ flex-direction:column; align-items:flex-start; }
+      .section-head{ align-items:flex-start; flex-direction:column; }
+      .filter-row{ width:100%; justify-content:flex-start; }
+      .select{ width:100%; }
+      .hero{ padding:24px; }
+      .hero h3, .section-head h3, .chat-info h3{ font-size:25px; }
+      .cards, .homework-grid{ grid-template-columns:1fr; }
+      .menu{ grid-template-columns:1fr 1fr; }
+      .schedule-item{ grid-template-columns:62px 1fr; }
+      .room{ grid-column:2; justify-self:start; }
+      .chat-input{ grid-template-columns:1fr; }
+      .chat-input button{ padding:12px 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo-badge">
+          <svg viewBox="0 0 64 64" width="40" height="40" aria-hidden="true">
+            <circle cx="32" cy="32" r="22" fill="none" stroke="#F4C542" stroke-width="3.4"/>
+            <circle cx="32" cy="32" r="9" fill="none" stroke="#F4C542" stroke-width="3.2"/>
+            <g stroke="#F4C542" stroke-width="3" stroke-linecap="round">
+              <path d="M32 10v10"/><path d="M32 44v10"/><path d="M10 32h10"/><path d="M44 32h10"/>
+              <path d="M16 16l7 7"/><path d="M41 41l7 7"/><path d="M48 16l-7 7"/><path d="M16 48l7-7"/>
+            </g>
+          </svg>
+        </div>
+        <div>
+          <h1>Школа будущего</h1>
+          <p>Цифровой помощник</p>
+        </div>
+      </div>
+
+      <nav class="menu">
+        <button class="nav-btn active" data-page="home">
+          <span class="menu-icon">
+            <svg viewBox="0 0 48 48" width="22" height="22"><path d="M8 24 24 10 40 24" fill="none" stroke="#F4C542" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 23v15h20V23" fill="none" stroke="#F4C542" stroke-width="3.2" stroke-linejoin="round"/></svg>
+          </span>
+          <span>Главная</span>
+        </button>
+        <button class="nav-btn" data-page="schedule">
+          <span class="menu-icon">
+            <svg viewBox="0 0 48 48" width="22" height="22"><rect x="8" y="10" width="32" height="28" rx="5" fill="none" stroke="#F4C542" stroke-width="3"/><path d="M15 8v8M33 8v8M8 20h32" stroke="#F4C542" stroke-width="3" stroke-linecap="round"/><path d="M16 28h6M26 28h6" stroke="#F4C542" stroke-width="3" stroke-linecap="round"/></svg>
+          </span>
+          <span>Расписание</span>
+        </button>
+        <button class="nav-btn" data-page="homework">
+          <span class="menu-icon">
+            <svg viewBox="0 0 48 48" width="22" height="22"><path d="M12 10h18l6 6v22H12z" fill="none" stroke="#F4C542" stroke-width="3" stroke-linejoin="round"/><path d="M30 10v8h8M18 24h12M18 30h12" stroke="#F4C542" stroke-width="3" stroke-linecap="round"/></svg>
+          </span>
+          <span>Домашнее задание</span>
+        </button>
+        <button class="nav-btn" data-page="events">
+          <span class="menu-icon">
+            <svg viewBox="0 0 48 48" width="22" height="22"><circle cx="24" cy="24" r="12" fill="none" stroke="#F4C542" stroke-width="3"/><path d="M24 6v6M24 36v6M6 24h6M36 24h6M11 11l4 4M33 33l4 4M37 11l-4 4M15 33l-4 4" stroke="#F4C542" stroke-width="3" stroke-linecap="round"/></svg>
+          </span>
+          <span>События</span>
+        </button>
+        <button class="nav-btn" data-page="assistant">
+          <span class="menu-icon">
+            <svg viewBox="0 0 48 48" width="22" height="22"><path d="M12 14h24a6 6 0 0 1 6 6v8a6 6 0 0 1-6 6H22l-8 6v-6h-2a6 6 0 0 1-6-6v-8a6 6 0 0 1 6-6z" fill="none" stroke="#F4C542" stroke-width="3" stroke-linejoin="round"/><path d="M17 24h.01M24 24h.01M31 24h.01" stroke="#F4C542" stroke-width="4" stroke-linecap="round"/></svg>
+          </span>
+          <span>Помощник</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <span class="status-dot"></span>
+        Система работает
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Проект ученика №1</p>
+          <h2 id="pageTitle">Добро пожаловать!</h2>
+        </div>
+        <div class="role-switch">
+          <button class="role-btn active" data-role="Ученик">Ученик</button>
+          <button class="role-btn" data-role="Родитель">Родитель</button>
+        </div>
+      </header>
+
+      <section id="home" class="page active">
+        <div class="hero">
+          <div>
+            <span class="badge">Цифровая школа</span>
+            <h3>Вся школьная информация — в одном месте</h3>
+            <p>
+              Узнай расписание, домашнее задание, школьные события
+              или задай вопрос цифровому помощнику.
+            </p>
+            <button class="primary-btn" data-open="assistant">Задать вопрос</button>
+          </div>
+          <div class="hero-card">
+            <svg class="hero-symbol" viewBox="0 0 100 100" aria-hidden="true">
+              <defs>
+                <linearGradient id="heroGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#1ea9de"/>
+                  <stop offset="100%" stop-color="#0e6c9c"/>
+                </linearGradient>
+              </defs>
+              <circle cx="50" cy="50" r="44" fill="url(#heroGrad)"/>
+              <circle cx="50" cy="50" r="31" fill="none" stroke="#F4C542" stroke-width="4"/>
+              <circle cx="50" cy="50" r="13" fill="none" stroke="#F4C542" stroke-width="4"/>
+              <g stroke="#F4C542" stroke-width="4" stroke-linecap="round">
+                <path d="M50 12v13"/><path d="M50 75v13"/><path d="M12 50h13"/><path d="M75 50h13"/>
+                <path d="M24 24l9 9"/><path d="M67 67l9 9"/><path d="M76 24l-9 9"/><path d="M24 76l9-9"/>
+              </g>
+            </svg>
+            <strong>Умный школьный помощник</strong>
+            <span>Интерфейс украшен элементами казахской символики и национального орнамента.</span>
+          </div>
+        </div>
+
+        <div class="cards">
+          <article class="info-card">
+            <svg class="kaz-icon" viewBox="0 0 80 80" aria-hidden="true">
+              <circle cx="40" cy="40" r="34" fill="#EAF7FF" stroke="#1D9BD1" stroke-width="2"/>
+              <path d="M18 42c10 0 12-10 22-10s12 10 22 10" fill="none" stroke="#F4C542" stroke-width="4" stroke-linecap="round"/>
+              <path d="M18 30c10 0 12 10 22 10s12-10 22-10" fill="none" stroke="#1D9BD1" stroke-width="4" stroke-linecap="round"/>
+              <path d="M18 50h44" stroke="#1D9BD1" stroke-width="4" stroke-linecap="round"/>
+            </svg>
+            <h4>Расписание</h4>
+            <p>Уроки на сегодня и завтра. Всё доступно в одном разделе.</p>
+            <button data-open="schedule">Открыть</button>
+          </article>
+
+          <article class="info-card">
+            <svg class="kaz-icon" viewBox="0 0 80 80" aria-hidden="true">
+              <circle cx="40" cy="40" r="34" fill="#FFF9E7" stroke="#F4C542" stroke-width="2"/>
+              <path d="M24 24h22l8 8v24H24z" fill="none" stroke="#1D9BD1" stroke-width="4" stroke-linejoin="round"/>
+              <path d="M46 24v10h10M30 42h18M30 50h18" stroke="#1D9BD1" stroke-width="4" stroke-linecap="round"/>
+            </svg>
+            <h4>Домашнее задание</h4>
+            <p>Задания по предметам и повторение важных тем.</p>
+            <button data-open="homework">Открыть</button>
+          </article>
+
+          <article class="info-card">
+            <svg class="kaz-icon" viewBox="0 0 80 80" aria-hidden="true">
+              <circle cx="40" cy="40" r="34" fill="#EAF7FF" stroke="#1D9BD1" stroke-width="2"/>
+              <circle cx="40" cy="40" r="14" fill="none" stroke="#F4C542" stroke-width="4"/>
+              <path d="M40 13v9M40 58v9M13 40h9M58 40h9M21 21l6 6M53 53l6 6M59 21l-6 6M27 53l-6 6" stroke="#F4C542" stroke-width="4" stroke-linecap="round"/>
+            </svg>
+            <h4>События</h4>
+            <p>Олимпиады, кружки, школьные мероприятия и новости.</p>
+            <button data-open="events">Открыть</button>
+          </article>
+
+          <article class="info-card">
+            <svg class="kaz-icon" viewBox="0 0 80 80" aria-hidden="true">
+              <circle cx="40" cy="40" r="34" fill="#FFF9E7" stroke="#F4C542" stroke-width="2"/>
+              <path d="M20 25h40a8 8 0 0 1 8 8v12a8 8 0 0 1-8 8H40L28 62V53h-8a8 8 0 0 1-8-8V33a8 8 0 0 1 8-8z" fill="none" stroke="#1D9BD1" stroke-width="4" stroke-linejoin="round"/>
+              <path d="M28 39h.01M40 39h.01M52 39h.01" stroke="#1D9BD1" stroke-width="6" stroke-linecap="round"/>
+            </svg>
+            <h4>Задать вопрос</h4>
+            <p>Помощник подскажет нужную информацию ученику и родителю.</p>
+            <button data-open="assistant">Спросить</button>
+          </article>
+        </div>
+
+        <div class="today-box">
+          <div>
+            <span class="mini-label">Сегодня</span>
+            <h4>Ближайший урок</h4>
+          </div>
+          <div class="lesson-row">
+            <span class="lesson-time">09:50</span>
+            <div>
+              <strong>Информатика</strong>
+              <small>Кабинет 305</small>
+            </div>
+            <span class="pill">3 урок</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="schedule" class="page">
+        <div class="section-head">
+          <div>
+            <span class="badge">Расписание</span>
+            <h3>Уроки на неделю</h3>
+          </div>
+          <div class="filter-row">
+            <select id="classSelect" class="select"></select>
+            <select id="daySelect" class="select"></select>
+          </div>
+        </div>
+        <div id="scheduleList" class="schedule-list"></div>
+      </section>
+
+      <section id="homework" class="page">
+        <div class="section-head">
+          <div>
+            <span class="badge">Домашняя работа</span>
+            <h3>Что нужно выполнить</h3>
+          </div>
+          <div class="filter-row">
+            <select id="homeworkClassSelect" class="select"></select>
+          </div>
+        </div>
+        <div id="homeworkList" class="homework-grid"></div>
+      </section>
+
+      <section id="events" class="page">
+        <div class="section-head">
+          <div>
+            <span class="badge">Школьная жизнь</span>
+            <h3>Ближайшие события</h3>
+          </div>
+        </div>
+        <div id="eventsList" class="events-list"></div>
+      </section>
+
+      <section id="assistant" class="page">
+        <div class="chat-layout">
+          <div class="chat-info">
+            <span class="badge">AI-помощник</span>
+            <h3>Что вы хотите узнать?</h3>
+            <p>
+              Можно спросить про расписание, домашнее задание,
+              кабинет, кружки, каникулы и школьные мероприятия.
+            </p>
+
+            <div class="quick-questions">
+              <button>Какое завтра расписание?</button>
+              <button>Что задано по математике?</button>
+              <button>Где проходит информатика?</button>
+              <button>Какие есть кружки?</button>
+            </div>
+          </div>
+
+          <div class="chat-card">
+            <div class="chat-head">
+              <div class="bot-avatar">
+                <svg viewBox="0 0 64 64" width="30" height="30" aria-hidden="true">
+                  <circle cx="32" cy="32" r="18" fill="none" stroke="#1D9BD1" stroke-width="3"/>
+                  <circle cx="32" cy="32" r="7" fill="none" stroke="#F4C542" stroke-width="3"/>
+                  <g stroke="#1D9BD1" stroke-width="3" stroke-linecap="round">
+                    <path d="M32 11v7"/><path d="M32 46v7"/><path d="M11 32h7"/><path d="M46 32h7"/>
+                  </g>
+                </svg>
+              </div>
+              <div>
+                <strong>Школьный помощник</strong>
+                <small><span class="status-dot"></span> онлайн</small>
+              </div>
+            </div>
+
+            <div id="chatMessages" class="chat-messages">
+              <div class="message bot">
+                Здравствуйте! Я цифровой помощник школы. Спросите меня о расписании,
+                домашнем задании, кабинетах, кружках или школьных событиях.
+              </div>
+            </div>
+
+            <form id="chatForm" class="chat-input">
+              <input id="chatInput" type="text" placeholder="Введите вопрос..." autocomplete="off" />
+              <button type="submit">Отправить</button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const schoolData = {
+      "5А": {
+        schedule: {
+          "Понедельник": [
+            ["08:00", "Математика", "Кабинет 210"],
+            ["08:55", "Русский язык", "Кабинет 204"],
+            ["09:50", "Информатика", "Кабинет 305"],
+            ["10:45", "История Казахстана", "Кабинет 112"],
+            ["11:40", "Физическая культура", "Спортзал"]
+          ],
+          "Вторник": [
+            ["08:00", "Казахский язык", "Кабинет 207"],
+            ["08:55", "Математика", "Кабинет 210"],
+            ["09:50", "Естествознание", "Кабинет 118"],
+            ["10:45", "Английский язык", "Кабинет 221"],
+            ["11:40", "Информатика", "Кабинет 305"]
+          ],
+          "Среда": [
+            ["08:00", "Русский язык", "Кабинет 204"],
+            ["08:55", "Математика", "Кабинет 210"],
+            ["09:50", "География", "Кабинет 115"],
+            ["10:45", "Физическая культура", "Спортзал"],
+            ["11:40", "Музыка", "Кабинет 109"]
+          ],
+          "Четверг": [
+            ["08:00", "Математика", "Кабинет 210"],
+            ["08:55", "Информатика", "Кабинет 305"],
+            ["09:50", "Казахский язык", "Кабинет 207"],
+            ["10:45", "История Казахстана", "Кабинет 112"],
+            ["11:40", "Технология", "Кабинет 301"]
+          ],
+          "Пятница": [
+            ["08:00", "Русский язык", "Кабинет 204"],
+            ["08:55", "Английский язык", "Кабинет 221"],
+            ["09:50", "Математика", "Кабинет 210"],
+            ["10:45", "Естествознание", "Кабинет 118"],
+            ["11:40", "Классный час", "Кабинет 204"]
+          ]
+        },
+        homework: [
+          { subject: "Математика", task: "Учебник: стр. 48, № 7–9. Повторить тему «Дроби».", deadline: "На завтра" },
+          { subject: "Информатика", task: "Повторить тему «Алгоритмы». Подготовить 3 примера алгоритмов из жизни.", deadline: "На четверг" },
+          { subject: "Русский язык", task: "Упр. 126. Выписать 5 словосочетаний.", deadline: "На завтра" },
+          { subject: "История Казахстана", task: "Прочитать параграф 12 и ответить на вопросы 1–4.", deadline: "На пятницу" }
+        ]
+      },
+
+      "6А": {
+        schedule: {
+          "Понедельник": [
+            ["08:00", "Русский язык", "Кабинет 206"],
+            ["08:55", "Математика", "Кабинет 211"],
+            ["09:50", "Информатика", "Кабинет 305"],
+            ["10:45", "География", "Кабинет 115"],
+            ["11:40", "Английский язык", "Кабинет 223"],
+            ["12:35", "Физическая культура", "Спортзал"]
+          ],
+          "Вторник": [
+            ["08:00", "Казахский язык", "Кабинет 209"],
+            ["08:55", "Математика", "Кабинет 211"],
+            ["09:50", "История Казахстана", "Кабинет 114"],
+            ["10:45", "Естествознание", "Кабинет 119"],
+            ["11:40", "Русская литература", "Кабинет 206"],
+            ["12:35", "Музыка", "Кабинет 109"]
+          ],
+          "Среда": [
+            ["08:00", "Математика", "Кабинет 211"],
+            ["08:55", "Информатика", "Кабинет 305"],
+            ["09:50", "Русский язык", "Кабинет 206"],
+            ["10:45", "Английский язык", "Кабинет 223"],
+            ["11:40", "География", "Кабинет 115"],
+            ["12:35", "Технология", "Кабинет 301"]
+          ],
+          "Четверг": [
+            ["08:00", "Казахская литература", "Кабинет 209"],
+            ["08:55", "Математика", "Кабинет 211"],
+            ["09:50", "Естествознание", "Кабинет 119"],
+            ["10:45", "История Казахстана", "Кабинет 114"],
+            ["11:40", "Физическая культура", "Спортзал"]
+          ],
+          "Пятница": [
+            ["08:00", "Русский язык", "Кабинет 206"],
+            ["08:55", "Информатика", "Кабинет 305"],
+            ["09:50", "Математика", "Кабинет 211"],
+            ["10:45", "Английский язык", "Кабинет 223"],
+            ["11:40", "Классный час", "Кабинет 206"]
+          ]
+        },
+        homework: [
+          { subject: "Математика", task: "Решить № 215–219. Повторить тему «Отношения и пропорции».", deadline: "На завтра" },
+          { subject: "Информатика", task: "Создать блок-схему алгоритма «Мой учебный день».", deadline: "На пятницу" },
+          { subject: "География", task: "Нанести на контурную карту крупные реки Казахстана.", deadline: "На четверг" },
+          { subject: "Английский язык", task: "Выучить 12 новых слов и составить с ними 5 предложений.", deadline: "На среду" }
+        ]
+      },
+
+      "7А": {
+        schedule: {
+          "Понедельник": [
+            ["08:00", "Алгебра", "Кабинет 214"],
+            ["08:55", "Русский язык", "Кабинет 208"],
+            ["09:50", "Физика", "Кабинет 317"],
+            ["10:45", "Информатика", "Кабинет 305"],
+            ["11:40", "История Казахстана", "Кабинет 116"],
+            ["12:35", "Физическая культура", "Спортзал"]
+          ],
+          "Вторник": [
+            ["08:00", "Геометрия", "Кабинет 214"],
+            ["08:55", "Казахский язык", "Кабинет 209"],
+            ["09:50", "Биология", "Кабинет 320"],
+            ["10:45", "Английский язык", "Кабинет 224"],
+            ["11:40", "География", "Кабинет 115"],
+            ["12:35", "Химия", "Кабинет 318"]
+          ],
+          "Среда": [
+            ["08:00", "Алгебра", "Кабинет 214"],
+            ["08:55", "Физика", "Кабинет 317"],
+            ["09:50", "Русская литература", "Кабинет 208"],
+            ["10:45", "Информатика", "Кабинет 305"],
+            ["11:40", "Биология", "Кабинет 320"]
+          ],
+          "Четверг": [
+            ["08:00", "Геометрия", "Кабинет 214"],
+            ["08:55", "Казахская литература", "Кабинет 209"],
+            ["09:50", "Химия", "Кабинет 318"],
+            ["10:45", "История Казахстана", "Кабинет 116"],
+            ["11:40", "Физическая культура", "Спортзал"]
+          ],
+          "Пятница": [
+            ["08:00", "Алгебра", "Кабинет 214"],
+            ["08:55", "Английский язык", "Кабинет 224"],
+            ["09:50", "География", "Кабинет 115"],
+            ["10:45", "Русский язык", "Кабинет 208"],
+            ["11:40", "Классный час", "Кабинет 208"]
+          ]
+        },
+        homework: [
+          { subject: "Алгебра", task: "№ 132–138. Повторить линейные уравнения.", deadline: "На завтра" },
+          { subject: "Физика", task: "Параграф 8. Записать определения скорости и пути.", deadline: "На среду" },
+          { subject: "Информатика", task: "Подготовить 5 вопросов для школьного чат-бота.", deadline: "На пятницу" },
+          { subject: "Биология", task: "Заполнить таблицу «Строение растительной клетки».", deadline: "На четверг" }
+        ]
+      },
+
+      "8А": {
+        schedule: {
+          "Понедельник": [
+            ["08:00", "Алгебра", "Кабинет 216"],
+            ["08:55", "Физика", "Кабинет 317"],
+            ["09:50", "Информатика", "Кабинет 305"],
+            ["10:45", "Химия", "Кабинет 318"],
+            ["11:40", "Русский язык", "Кабинет 208"],
+            ["12:35", "Английский язык", "Кабинет 225"]
+          ],
+          "Вторник": [
+            ["08:00", "Геометрия", "Кабинет 216"],
+            ["08:55", "История Казахстана", "Кабинет 117"],
+            ["09:50", "Биология", "Кабинет 320"],
+            ["10:45", "Казахский язык", "Кабинет 209"],
+            ["11:40", "Физическая культура", "Спортзал"],
+            ["12:35", "География", "Кабинет 115"]
+          ],
+          "Среда": [
+            ["08:00", "Алгебра", "Кабинет 216"],
+            ["08:55", "Информатика", "Кабинет 305"],
+            ["09:50", "Физика", "Кабинет 317"],
+            ["10:45", "Химия", "Кабинет 318"],
+            ["11:40", "Русская литература", "Кабинет 208"]
+          ],
+          "Четверг": [
+            ["08:00", "Геометрия", "Кабинет 216"],
+            ["08:55", "Английский язык", "Кабинет 225"],
+            ["09:50", "Биология", "Кабинет 320"],
+            ["10:45", "История Казахстана", "Кабинет 117"],
+            ["11:40", "Физическая культура", "Спортзал"]
+          ],
+          "Пятница": [
+            ["08:00", "Алгебра", "Кабинет 216"],
+            ["08:55", "Казахская литература", "Кабинет 209"],
+            ["09:50", "Информатика", "Кабинет 305"],
+            ["10:45", "География", "Кабинет 115"],
+            ["11:40", "Классный час", "Кабинет 208"]
+          ]
+        },
+        homework: [
+          { subject: "Алгебра", task: "Решить № 84–90 по теме «Квадратные корни».", deadline: "На завтра" },
+          { subject: "Информатика", task: "Составить простой алгоритм работы школьного цифрового помощника.", deadline: "На пятницу" },
+          { subject: "Физика", task: "Параграф 10. Решить задачи 1–3 на количество теплоты.", deadline: "На среду" },
+          { subject: "Химия", task: "Повторить валентность и составить формулы 6 веществ.", deadline: "На четверг" }
+        ]
+      },
+
+      "9А": {
+        schedule: {
+          "Понедельник": [
+            ["08:00", "Алгебра", "Кабинет 218"],
+            ["08:55", "Физика", "Кабинет 317"],
+            ["09:50", "Химия", "Кабинет 318"],
+            ["10:45", "Информатика", "Кабинет 305"],
+            ["11:40", "История Казахстана", "Кабинет 117"],
+            ["12:35", "Английский язык", "Кабинет 226"]
+          ],
+          "Вторник": [
+            ["08:00", "Геометрия", "Кабинет 218"],
+            ["08:55", "Биология", "Кабинет 320"],
+            ["09:50", "Русский язык", "Кабинет 208"],
+            ["10:45", "География", "Кабинет 115"],
+            ["11:40", "Казахский язык", "Кабинет 209"],
+            ["12:35", "Физическая культура", "Спортзал"]
+          ],
+          "Среда": [
+            ["08:00", "Алгебра", "Кабинет 218"],
+            ["08:55", "Физика", "Кабинет 317"],
+            ["09:50", "Информатика", "Кабинет 305"],
+            ["10:45", "Химия", "Кабинет 318"],
+            ["11:40", "Русская литература", "Кабинет 208"]
+          ],
+          "Четверг": [
+            ["08:00", "Геометрия", "Кабинет 218"],
+            ["08:55", "История Казахстана", "Кабинет 117"],
+            ["09:50", "Биология", "Кабинет 320"],
+            ["10:45", "Английский язык", "Кабинет 226"],
+            ["11:40", "Физическая культура", "Спортзал"]
+          ],
+          "Пятница": [
+            ["08:00", "Алгебра", "Кабинет 218"],
+            ["08:55", "Информатика", "Кабинет 305"],
+            ["09:50", "География", "Кабинет 115"],
+            ["10:45", "Казахская литература", "Кабинет 209"],
+            ["11:40", "Классный час", "Кабинет 208"]
+          ]
+        },
+        homework: [
+          { subject: "Алгебра", task: "Решить № 203–208 по теме «Квадратичная функция».", deadline: "На завтра" },
+          { subject: "Информатика", task: "Подготовить пример базы данных школьного расписания.", deadline: "На пятницу" },
+          { subject: "Физика", task: "Повторить законы Ньютона, решить задачи 4–6.", deadline: "На среду" },
+          { subject: "Биология", task: "Составить схему «Нервная система человека».", deadline: "На четверг" }
+        ]
+      }
+    };
+
+    const eventsData = [
+      { date: "24 сен", title: "Неделя информатики", text: "Викторины, мини-проекты и соревнования для учащихся." },
+      { date: "26 сен", title: "Кружок робототехники", text: "Сборка и программирование моделей LEGO EV3." },
+      { date: "30 сен", title: "Школьная олимпиада", text: "Первый этап олимпиады по математике и информатике." }
+    ];
+
+    const titles = {
+      home: "Добро пожаловать!",
+      schedule: "Расписание",
+      homework: "Домашнее задание",
+      events: "События школы",
+      assistant: "Цифровой помощник"
+    };
+
+    const navButtons = document.querySelectorAll(".nav-btn");
+    const pages = document.querySelectorAll(".page");
+    const openButtons = document.querySelectorAll("[data-open]");
+    const roleButtons = document.querySelectorAll(".role-btn");
+    const pageTitle = document.getElementById("pageTitle");
+    const classSelect = document.getElementById("classSelect");
+    const daySelect = document.getElementById("daySelect");
+    const homeworkClassSelect = document.getElementById("homeworkClassSelect");
+    const scheduleList = document.getElementById("scheduleList");
+    const homeworkList = document.getElementById("homeworkList");
+    const eventsList = document.getElementById("eventsList");
+    const chatForm = document.getElementById("chatForm");
+    const chatInput = document.getElementById("chatInput");
+    const chatMessages = document.getElementById("chatMessages");
+
+    let currentRole = "Ученик";
+
+    function openPage(pageId){
+      pages.forEach(page => page.classList.toggle("active", page.id === pageId));
+      navButtons.forEach(btn => btn.classList.toggle("active", btn.dataset.page === pageId));
+      pageTitle.textContent = titles[pageId];
+    }
+
+    navButtons.forEach(btn => btn.addEventListener("click", () => openPage(btn.dataset.page)));
+    openButtons.forEach(btn => btn.addEventListener("click", () => openPage(btn.dataset.open)));
+
+    roleButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        roleButtons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentRole = btn.dataset.role;
+        addMessage(`Режим переключён: ${currentRole}. Чем я могу помочь?`, "bot");
+      });
+    });
+
+    const classNames = Object.keys(schoolData);
+    const dayNames = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница"];
+
+    classNames.forEach(className => {
+      const scheduleOption = document.createElement("option");
+      scheduleOption.value = className;
+      scheduleOption.textContent = `${className} класс`;
+      classSelect.appendChild(scheduleOption);
+
+      const homeworkOption = document.createElement("option");
+      homeworkOption.value = className;
+      homeworkOption.textContent = `${className} класс`;
+      homeworkClassSelect.appendChild(homeworkOption);
+    });
+
+    dayNames.forEach(day => {
+      const option = document.createElement("option");
+      option.value = day;
+      option.textContent = day;
+      daySelect.appendChild(option);
+    });
+
+    function renderSchedule(className, day){
+      scheduleList.innerHTML = "";
+      const lessons = schoolData[className].schedule[day] || [];
+
+      lessons.forEach(([time, subject, room], index) => {
+        const item = document.createElement("div");
+        item.className = "schedule-item";
+        item.innerHTML = `
+          <div class="schedule-time">${time}</div>
+          <div>
+            <h4>${index + 1}. ${subject}</h4>
+            <p>${className} класс · продолжительность урока — 45 минут</p>
+          </div>
+          <span class="room">${room}</span>
+        `;
+        scheduleList.appendChild(item);
+      });
+    }
+
+    function renderHomework(className){
+      homeworkList.innerHTML = "";
+      schoolData[className].homework.forEach(item => {
+        const card = document.createElement("article");
+        card.className = "homework-card";
+        card.innerHTML = `
+          <span class="subject-tag">${className} · ${item.subject}</span>
+          <h4>${item.subject}</h4>
+          <p>${item.task}</p>
+          <div class="deadline">Срок: ${item.deadline}</div>
+        `;
+        homeworkList.appendChild(card);
+      });
+    }
+
+    classSelect.addEventListener("change", () => renderSchedule(classSelect.value, daySelect.value));
+    daySelect.addEventListener("change", () => renderSchedule(classSelect.value, daySelect.value));
+    homeworkClassSelect.addEventListener("change", () => renderHomework(homeworkClassSelect.value));
+
+    classSelect.value = "5А";
+    homeworkClassSelect.value = "5А";
+    renderSchedule("5А", "Понедельник");
+    renderHomework("5А");
+
+    eventsData.forEach(event => {
+      const card = document.createElement("article");
+      card.className = "event-card";
+      card.innerHTML = `
+        <div class="event-date">${event.date}</div>
+        <div>
+          <h4>${event.title}</h4>
+          <p>${event.text}</p>
+        </div>
+      `;
+      eventsList.appendChild(card);
+    });
+
+    function addMessage(text, type){
+      const el = document.createElement("div");
+      el.className = `message ${type}`;
+      el.textContent = text;
+      chatMessages.appendChild(el);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function normalize(text){
+      return text.toLowerCase().replace(/[ё]/g, "е");
+    }
+
+    function getBotAnswer(question){
+      const q = normalize(question);
+
+      const mentionedClass = classNames.find(c => q.includes(c.toLowerCase()) || q.includes(c.replace("А","а").toLowerCase()));
+
+      if (mentionedClass && q.includes("распис")) {
+        const day = q.includes("втор") ? "Вторник" :
+                    q.includes("сред") ? "Среда" :
+                    q.includes("четвер") ? "Четверг" :
+                    q.includes("пятниц") ? "Пятница" : "Понедельник";
+        const subjects = schoolData[mentionedClass].schedule[day].map(x => x[1]).join(", ");
+        return `${mentionedClass} класс, ${day.toLowerCase()}: ${subjects}.`;
+      }
+
+      if (mentionedClass && (q.includes("домаш") || q.includes("задан") || q.includes("дз"))) {
+        const hw = schoolData[mentionedClass].homework.map(x => `${x.subject}: ${x.task}`).join(" ");
+        return `Домашние задания для ${mentionedClass} класса: ${hw}`;
+      }
+
+      if (q.includes("завтра") && q.includes("распис")) {
+        return "Завтра по расписанию: казахский язык, математика, естествознание, английский язык и информатика.";
+      }
+
+      if (q.includes("сегодня") && q.includes("распис")) {
+        return "Сегодня: математика, русский язык, информатика, история и физическая культура.";
+      }
+
+      if (q.includes("распис")) {
+        return "Расписание можно открыть в разделе «Расписание». Выберите нужный день недели.";
+      }
+
+      if ((q.includes("математ") || q.includes("дроб")) && (q.includes("домаш") || q.includes("задан") || q.includes("дз"))) {
+        return "По математике: учебник, стр. 48, задания № 7–9. Также нужно повторить тему «Дроби».";
+      }
+
+      if (q.includes("информат") && (q.includes("домаш") || q.includes("задан") || q.includes("дз"))) {
+        return "По информатике: повторить тему «Алгоритмы» и подготовить 3 примера алгоритмов из жизни.";
+      }
+
+      if (q.includes("домаш") || q.includes("задан") || q.includes("дз")) {
+        return "Домашние задания собраны в разделе «Домашнее задание». Можно спросить меня и по конкретному предмету.";
+      }
+
+      if (q.includes("кабин") && q.includes("информ")) {
+        return "Информатика проходит в кабинете 305.";
+      }
+
+      if (q.includes("круж")) {
+        return "В школе есть кружки робототехники, программирования, шахмат и спортивные секции. Ближайшее занятие по робототехнике — 26 сентября.";
+      }
+
+      if (q.includes("каник")) {
+        return "Даты каникул публикуются администрацией школы. В демонстрационной версии приложения точный календарь можно добавить отдельно.";
+      }
+
+      if (q.includes("мероприят") || q.includes("событ") || q.includes("олимпиад")) {
+        return "Ближайшие события: Неделя информатики — 24 сентября, кружок робототехники — 26 сентября, школьная олимпиада — 30 сентября.";
+      }
+
+      if (q.includes("учител") || q.includes("связат")) {
+        return currentRole === "Родитель"
+          ? "В полной версии приложения здесь можно добавить контакты классного руководителя и форму обращения к учителю."
+          : "Связаться с учителем можно через школьный раздел сообщений. В этой демонстрации показана сама идея функции.";
+      }
+
+      if (q.includes("привет") || q.includes("здравств")) {
+        return `Здравствуйте! Сейчас выбран режим «${currentRole}». Я могу подсказать расписание, домашнее задание, кабинеты, кружки и события школы.`;
+      }
+
+      return "Я пока не нашёл точный ответ. Попробуйте спросить про расписание, домашнее задание, кабинет информатики, кружки или школьные мероприятия.";
+    }
+
+    chatForm.addEventListener("submit", function(e){
+      e.preventDefault();
+      const text = chatInput.value.trim();
+      if (!text) return;
+      addMessage(text, "user");
+      chatInput.value = "";
+      setTimeout(() => addMessage(getBotAnswer(text), "bot"), 350);
+    });
+
+    document.querySelectorAll(".quick-questions button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        openPage("assistant");
+        addMessage(btn.textContent, "user");
+        setTimeout(() => addMessage(getBotAnswer(btn.textContent), "bot"), 250);
+      });
+    });
+  </script>
+</body>
+</html>
